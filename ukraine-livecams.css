@@ -49,7 +49,7 @@ html, body {
     background-color: rgba(0, 0, 0, 0.7);
 }
 .popup-object .mapboxgl-popup-content,
-.popup-object .mapboxgl-popup-tip,
+.popup-object .mapboxgl-popup-tip {
     pointer-events: none;
 }
 .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
