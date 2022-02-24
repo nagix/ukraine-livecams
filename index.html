@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en_US">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-39988758-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-39988758-2');
+    </script>
+    <meta charset="utf-8">
+    <title>Ukraine Live Cams</title>
+    <meta name="description" content="Ukraine live camera 3D map. This data visualization was produced by Akihiko Kusanagi." />
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta property="og:title" content="Ukraine Live Cams" />
+    <meta property="og:description" content="Ukraine live camera 3D map. This data visualization was produced by Akihiko Kusanagi." />
+    <meta property="og:locale" content="ja_JP" />
+    <link rel="canonical" href="https://nagix.github.io/ukraine-livecams" />
+    <meta property="og:url" content="https://nagix.github.io/ukraine-livecams" />
+    <meta property="og:site_name" content="Ukraine Live Cams" />
+    <meta property="og:image" content="https://nagix.github.io/ukraine-livecams/screenshot1.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@nagix" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+    <link href="ukraine-livecams.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mapbox-gl-animated-popup@v0.2.1/dist/mapbox-gl-animated-popup.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/suncalc@1.8.0/suncalc.js"></script>
+</head>
+<body>
+    <div id="root">
+        <div id="map"></div>
+    </div>
+    <script>
+        const LIVECAMS_URL = 'https://mini-tokyo.appspot.com/ukraine-livecams';
+
+        const cameraData = [{
+            'id': 'Kyiv',
+            'name': {
+                'en': 'Kyiv Live Camera',
+                'ja': 'キエフライブカメラ'
+            },
+            'channel': 'UCuTAXTexrhetbOe3zgskJBQ',
+            'keyword': '東京駅',
+            'center': [33.187, 47.774],
+            'zoom': 17,
+            'bearing': 35,
+            'pitch': 60
+        }];
+
+        function setSunPosition(map) {
+            const {lng, lat} = map.getCenter();
+            const {azimuth, altitude} = SunCalc.getPosition(Date.now(), lat, lng);
+            const sunAzimuth = 180 + azimuth * 180 / Math.PI;
+            const sunAltitude = 90 - altitude * 180 / Math.PI;
+            map.setPaintProperty('sky', 'sky-atmosphere-sun', [sunAzimuth, sunAltitude]);
+        }
+
+        function createElement(tagName, attributes, container) {
+            const element = document.createElement(tagName);
+
+            Object.assign(element, attributes);
+            if (container) {
+                container.appendChild(element);
+            }
+            return element;
+        }
+
+        const isWindows = navigator.userAgent.indexOf('Windows') !== -1;
+
+        class LivecamPanel {
+
+            constructor(options) {
+                this._options = Object.assign({
+                }, options);
+            }
+
+            addTo(map) {
+                const me = this,
+                    options = me._options,
+                    {name, html} = options.camera;
+
+                me._map = map;
+
+                const container = me._container = createElement('div', {
+                    className: 'panel closed',
+                    innerHTML: `
+        <div id="panel-header">
+            <div id="panel-title">${name[lang]}</div>
+            <div id="panel-button-group" class="panel-button-group">
+                <div id="panel-button" class="slide-button"></div>
+            </div>
+        </div>
+        <div id="panel-body"${isWindows ? ' class="windows"' : ''}>
+            <div id="panel-content">${html}</div>
+        </div>`
+                }, map.getContainer());
+
+                container.querySelector('#panel-header').addEventListener('click', () => {
+                    const {classList} = container;
+
+                    if (classList.contains('collapsed')) {
+                        classList.remove('collapsed');
+                    } else {
+                        classList.add('collapsed');
+                    }
+                });
+                container.querySelector('#panel-header').style.cursor = 'pointer';
+
+                requestAnimationFrame(() => {
+                    container.classList.remove('closed');
+                });
+
+                return me;
+            }
+
+            remove() {
+                const me = this,
+                    options = me._options,
+                    container = me._container;
+
+                container.style.removeProperty('height');
+                container.classList.add('closed');
+
+                setTimeout(() => {
+                    container.parentNode.removeChild(container);
+                    delete me._container;
+                    delete me._map;
+                }, 300);
+            }
+
+            isOpen() {
+                return !!this._map;
+            }
+
+        }
+
+        const cameras = {};
+        const markers = {};
+        let activeCamera;
+        let panel;
+
+        function addMarkers(map) {
+            for (const id of Object.keys(cameras)) {
+                const {center, zoom, bearing, pitch, name, thumbnail} = cameras[id],
+                    element = createElement('div', {className: 'livecam-marker'});
+                let popup;
+
+                markers[id] = new mapboxgl.Marker({element})
+                    .setLngLat(center)
+                    .addTo(map);
+                element.addEventListener('click', e => {
+                    if (activeCamera !== id) {
+                        activeCamera = id;
+                        element.classList.add('active');
+                        panel = new LivecamPanel({camera: cameras[id]}).addTo(map);
+                        map.flyTo({center, zoom, bearing, pitch});
+                    }
+                    e.stopPropagation();
+                });
+                element.addEventListener('mouseenter', () => {
+                    popup = new AnimatedPopup({
+                            className: 'popup-object',
+                            closeButton: false,
+                            closeOnClick: false,
+                            maxWidth: '300px',
+                            offset: {
+                                top: [0, 22],
+                                bottom: [0, -22]
+                            },
+                            openingAnimation: {
+                                duration: 300,
+                                easing: 'easeOutBack'
+                            }
+                        })
+                        .setLngLat(center)
+                        .setHTML([
+                            '<div class="thumbnail-image-container">',
+                            '<div class="ball-pulse"><div></div><div></div><div></div></div>',
+                            `<div class="thumbnail-image" style="background-image: url(\'${thumbnail}\');"></div>`,
+                            '</div>',
+                            `<div><strong>${name[lang]}</strong></div>`
+                        ].join(''))
+                        .addTo(map);
+                });
+                element.addEventListener('mouseleave', () => {
+                    if (popup) {
+                        popup.remove();
+                        popup = undefined;
+                    }
+                });
+            }
+        }
+
+        function removeMarkers() {
+            for (const id of Object.keys(markers)) {
+                markers[id].remove();
+                delete markers[id];
+            }
+        }
+
+        function updateMarkers(map) {
+            fetch(LIVECAMS_URL).then(response => response.json()).then(data => {
+                if (!activeCamera) {
+                    removeMarkers();
+                    for (const item of data) {
+                        cameras[item.id] = item;
+                    }
+                    addMarkers(map);
+                }
+            });
+        }
+
+        const matchLang = location.search.match(/lang=(.*?)(&|$)/);
+        let lang = matchLang ? decodeURIComponent(matchLang[1]) : '';
+
+        if (!lang.match(/ja|en/)) {
+            lang = (window.navigator.languages && window.navigator.languages[0]) ||
+                window.navigator.language ||
+                window.navigator.userLanguage ||
+                window.navigator.browserLanguage || '';
+        }
+        lang = lang.substring(0, 2);
+        lang = lang.match(/ja|en/) ? lang : 'en';
+
+        mapboxgl.accessToken = 'pk.eyJ1IjoibmFnaXgiLCJhIjoiY2wwMWY3MDhiMGx2bzNpbWUzb3ZtMzE3ciJ9.3mbkCXT-B-Cql9UPCTy9Qw';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'ukraine-livecams.json',
+            minZoom: 2,
+            maxZoom: 18,
+            hash: true
+        });
+        map.addControl(new mapboxgl.NavigationControl());
+        map.addControl(new mapboxgl.FullscreenControl({container: root}));
+
+        map.once('styledata', () => {
+            map.on('move', () => {
+                setSunPosition(map);
+            });
+            map.on('click', () => {
+                if (activeCamera) {
+                    markers[activeCamera].getElement().classList.remove('active');
+                    activeCamera = undefined;
+                }
+                if (panel) {
+                    panel.remove();
+                    panel = undefined;
+
+                }
+            });
+            setSunPosition(map);
+            setInterval(() => {
+                setSunPosition(map);
+            }, 60000);
+            updateMarkers(map);
+            setInterval(() => {
+                updateMarkers(map);
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

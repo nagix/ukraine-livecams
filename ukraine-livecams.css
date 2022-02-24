@@ -1,0 +1,144 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+#root, #map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+.livecam-marker {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #333;
+    border-radius: 50%;
+    background: white no-repeat center/20px url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath fill='%23333' d='M384 112v288c0 26.51-21.49 48-48 48h-288c-26.51 0-48-21.49-48-48v-288c0-26.51 21.49-48 48-48h288C362.5 64 384 85.49 384 112zM576 127.5v256.9c0 25.5-29.17 40.39-50.39 25.79L416 334.7V177.3l109.6-75.56C546.9 87.13 576 102.1 576 127.5z'%3E%3C/path%3E%3C/svg%3E");
+    cursor: pointer;
+}
+.livecam-marker.active, .livecam-marker:hover {
+    border-color: #33B5E5;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath fill='%2333B5E5' d='M384 112v288c0 26.51-21.49 48-48 48h-288c-26.51 0-48-21.49-48-48v-288c0-26.51 21.49-48 48-48h288C362.5 64 384 85.49 384 112zM576 127.5v256.9c0 25.5-29.17 40.39-50.39 25.79L416 334.7V177.3l109.6-75.56C546.9 87.13 576 102.1 576 127.5z'%3E%3C/path%3E%3C/svg%3E");
+}
+.thumbnail-image-container {
+    width: 128px;
+    height: 72px;
+    margin-bottom: 4px;
+    position: relative;
+}
+.thumbnail-image-container > .ball-pulse {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(.5, .5);
+    box-sizing: initial;
+    position: absolute;
+}
+.thumbnail-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+}
+.mapboxgl-popup-content {
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+.popup-object .mapboxgl-popup-content,
+.popup-object .mapboxgl-popup-tip,
+    pointer-events: none;
+}
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
+    border-bottom-color: rgba(0, 0, 0, 0.7);
+}
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
+    border-top-color: rgba(0, 0, 0, 0.7);
+}
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+    border-right-color: rgba(0, 0, 0, 0.7);
+}
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+    border-left-color: rgba(0, 0, 0, 0.7);
+}
+.mapboxgl-popup-anchor-top.highlighted .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-left.highlighted .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-top-right.highlighted .mapboxgl-popup-tip {
+    border-bottom-color: rgba(102, 102, 102, 0.7);
+}
+.mapboxgl-popup-anchor-bottom.highlighted .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-left.highlighted .mapboxgl-popup-tip,
+.mapboxgl-popup-anchor-bottom-right.highlighted .mapboxgl-popup-tip {
+    border-top-color: rgba(102, 102, 102, 0.7);
+}
+.mapboxgl-popup-anchor-left.highlighted .mapboxgl-popup-tip {
+    border-right-color: rgba(102, 102, 102, 0.7);
+}
+.mapboxgl-popup-anchor-right.highlighted .mapboxgl-popup-tip {
+    border-left-color: rgba(102, 102, 102, 0.7);
+}
+.panel {
+    position: absolute;
+    z-index: 3;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: calc(100% - 20px);
+    max-width: 380px;
+    height: 262px;
+    margin: auto;
+    border-radius: 10px 10px 0 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-size: 130%;
+    color: #fff;
+    transition: height 300ms;
+}
+.panel.collapsed {
+    height: 50px;
+}
+.panel.closed {
+    height: 0;
+}
+#panel-header {
+    position: relative;
+    height: 30px;
+    margin: 10px 0;
+    padding: 0 10px;
+    line-height: 30px;
+}
+#panel-title {
+    font-weight: bold;
+}
+#panel-body {
+    height: calc(100% - 50px);
+    margin-top: 10px;
+    padding: 0 10px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    line-height: 130%;
+}
+#panel-content{
+    position: relative;
+    overflow: hidden;
+}
+.windows {
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+}
+.windows::-webkit-scrollbar {
+    width: 10px;
+}
+.windows::-webkit-scrollbar-thumb {
+    background: #ccc;
+    background-clip: content-box;
+    border-radius: 6px;
+    border: solid 2px transparent;
+}
