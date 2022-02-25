@@ -30,6 +30,29 @@
 <body>
     <div id="root">
         <div id="map"></div>
+            <div id="info-bg" class="bg">
+                <div class="info">
+                    <div>About Ukraine Live Cams</div>
+                    <div>
+                        <p><strong>How to operate</strong></p>
+                        <p>
+                            Drag/arrow keys: Move<br>
+                            Mouse wheel/+- keys: Zoom<br>
+                            Right mouse/Ctrl + drag: Rotate/tilt<br>
+                            Two finger pinch: Rotate/zoom<br>
+                            Two finger drag: Tilt<br>
+                            Shift + L/R arrow keys: Rotate<br>
+                            Shift + U/D arrow keys: Tilt<br>
+                            Camera icon click/tap: Watch<br>
+                            Click/tap on map: Unwatch
+                        </p>
+                        <hr>
+                        <p>This data visualization was produced by <a href="https://nagix.github.io" target="_blank">Akihiko Kusanagi</a>.</p>
+                        <p>Source code is available at <a href="https://github.com/nagix/ukraine-livecams" target="_blank">GitHub repository</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script>
         const LIVECAMS_URL = 'https://mini-tokyo.appspot.com/ukraine-livecams';
@@ -64,6 +87,56 @@
                 container.appendChild(element);
             }
             return element;
+        }
+
+        class MapboxGLButtonControl {
+
+            constructor(optionArray) {
+                this._options = optionArray.map(options => ({
+                    className: options.className || '',
+                    title: options.title || '',
+                    eventHandler: options.eventHandler
+                }));
+            }
+
+            onAdd(map) {
+                const me = this;
+
+                me._map = map;
+
+                me._container = document.createElement('div');
+                me._container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+
+                me._buttons = me._options.map(options => {
+                    const button = document.createElement('button'),
+                        icon = document.createElement('span'),
+                        {className, title, eventHandler} = options;
+
+                    button.className = className;
+                    button.type = 'button';
+                    button.title = title;
+                    button.setAttribute('aria-label', title);
+                    button.onclick = eventHandler;
+
+                    icon.className = 'mapboxgl-ctrl-icon';
+                    icon.setAttribute('aria-hidden', true);
+                    button.appendChild(icon);
+
+                    me._container.appendChild(button);
+
+                    return button;
+                });
+
+                return me._container;
+            }
+
+            onRemove() {
+                const me = this;
+
+                me._container.parentNode.removeChild(me._container);
+                me._map = undefined;
+            }
+
         }
 
         const isWindows = navigator.userAgent.indexOf('Windows') !== -1;
@@ -156,6 +229,7 @@
                         panel = new LivecamPanel({camera: cameras[id]}).addTo(map);
                         map.flyTo({center, zoom, bearing, pitch});
                     }
+                    canvasElement.focus();
                     e.stopPropagation();
                 });
                 element.addEventListener('mouseenter', () => {
@@ -232,6 +306,21 @@
         });
         map.addControl(new mapboxgl.NavigationControl());
         map.addControl(new mapboxgl.FullscreenControl({container: root}));
+        map.addControl(new MapboxGLButtonControl([{
+            className: 'mapboxgl-ctrl-info',
+            title: 'About Ukraine Live Cams',
+            eventHandler() {
+                infoBGElement.style.display = 'block';
+            }
+        }]));
+
+        const canvasElement = document.querySelector('#map .mapboxgl-canvas');
+        const infoBGElement = document.getElementById('info-bg');
+
+        infoBGElement.addEventListener('click', () => {
+            infoBGElement.style.display = 'none';
+            canvasElement.focus();
+        });
 
         map.once('styledata', () => {
             map.on('move', () => {
