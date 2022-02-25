@@ -22,6 +22,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@nagix" />
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/loaders.css@0.1.2/loaders.min.css" rel="stylesheet">
     <link href="ukraine-livecams.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mapbox-gl-animated-popup@v0.2.1/dist/mapbox-gl-animated-popup.min.js"></script>
@@ -213,6 +214,27 @@
         let activeCamera;
         let panel;
 
+        function selectMarker(map, id) {
+            const {center, zoom, bearing, pitch} = cameras[id];
+
+            if (activeCamera !== id) {
+                activeCamera = id;
+                panel = new LivecamPanel({camera: cameras[id]}).addTo(map);
+                map.flyTo({center, zoom, bearing, pitch});
+            }
+        }
+
+        function deselectMarker() {
+            if (activeCamera) {
+                markers[activeCamera].getElement().classList.remove('active');
+                activeCamera = undefined;
+            }
+            if (panel) {
+                panel.remove();
+                panel = undefined;
+            }
+        }
+
         function addMarkers(map) {
             for (const id of Object.keys(cameras)) {
                 const {center, zoom, bearing, pitch, name, thumbnail} = cameras[id],
@@ -223,12 +245,8 @@
                     .setLngLat(center)
                     .addTo(map);
                 element.addEventListener('click', e => {
-                    if (activeCamera !== id) {
-                        activeCamera = id;
-                        element.classList.add('active');
-                        panel = new LivecamPanel({camera: cameras[id]}).addTo(map);
-                        map.flyTo({center, zoom, bearing, pitch});
-                    }
+                    element.classList.add('active');
+                    selectMarker(map, id);
                     canvasElement.focus();
                     e.stopPropagation();
                 });
@@ -307,6 +325,14 @@
         map.addControl(new mapboxgl.NavigationControl());
         map.addControl(new mapboxgl.FullscreenControl({container: root}));
         map.addControl(new MapboxGLButtonControl([{
+            className: 'mapboxgl-ctrl-home',
+            title: 'Fly to home position',
+            eventHandler() {
+                deselectMarker();
+                map.flyTo({center: [31.685, 47.774], zoom: 5.5, bearing: 0, pitch: 45});
+                canvasElement.focus();
+            }
+        }, {
             className: 'mapboxgl-ctrl-info',
             title: 'About Ukraine Live Cams',
             eventHandler() {
@@ -327,15 +353,7 @@
                 setSunPosition(map);
             });
             map.on('click', () => {
-                if (activeCamera) {
-                    markers[activeCamera].getElement().classList.remove('active');
-                    activeCamera = undefined;
-                }
-                if (panel) {
-                    panel.remove();
-                    panel = undefined;
-
-                }
+                deselectMarker();
             });
             setSunPosition(map);
             setInterval(() => {
