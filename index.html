@@ -218,6 +218,7 @@
             const {center, zoom, bearing, pitch} = cameras[id];
 
             if (activeCamera !== id) {
+                deselectMarker();
                 activeCamera = id;
                 panel = new LivecamPanel({camera: cameras[id]}).addTo(map);
                 map.flyTo({center, zoom, bearing, pitch});
@@ -237,10 +238,13 @@
 
         function addMarkers(map) {
             for (const id of Object.keys(cameras)) {
-                const {center, zoom, bearing, pitch, name, thumbnail} = cameras[id],
+                const {center, zoom, bearing, pitch, name, thumbnail, count} = cameras[id],
                     element = createElement('div', {className: 'livecam-marker'});
+                    badgeElement = createElement('div', {className: 'badge'});
                 let popup;
 
+                element.appendChild(badgeElement);
+                badgeElement.innerText = count;
                 markers[id] = new mapboxgl.Marker({element})
                     .setLngLat(center)
                     .addTo(map);
@@ -292,6 +296,9 @@
         }
 
         function updateMarkers(map) {
+            for (const id of Object.keys(cameras)) {
+                delete cameras[id];
+            }
             fetch(LIVECAMS_URL).then(response => response.json()).then(data => {
                 if (!activeCamera) {
                     removeMarkers();
