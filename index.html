@@ -296,12 +296,12 @@
         }
 
         function updateMarkers(map) {
-            for (const id of Object.keys(cameras)) {
-                delete cameras[id];
-            }
             fetch(LIVECAMS_URL).then(response => response.json()).then(data => {
                 if (!activeCamera) {
                     removeMarkers();
+                    for (const id of Object.keys(cameras)) {
+                        delete cameras[id];
+                    }
                     for (const item of data) {
                         cameras[item.id] = item;
                     }
