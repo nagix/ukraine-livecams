@@ -58,19 +58,12 @@
     <script>
         const LIVECAMS_URL = 'https://mini-tokyo.appspot.com/ukraine-livecams';
 
-        const cameraData = [{
-            'id': 'Kyiv',
-            'name': {
-                'en': 'Kyiv Live Camera',
-                'ja': 'キエフライブカメラ'
-            },
-            'channel': 'UCuTAXTexrhetbOe3zgskJBQ',
-            'keyword': '東京駅',
-            'center': [33.187, 47.774],
-            'zoom': 17,
-            'bearing': 35,
-            'pitch': 60
-        }];
+        const dict = {
+            'watching-now': {
+                'en': 'watching now',
+                'ja': '人が視聴中'
+            }
+        };
 
         function setSunPosition(map) {
             const {lng, lat} = map.getCenter();
@@ -275,7 +268,8 @@
                             '<div class="ball-pulse"><div></div><div></div><div></div></div>',
                             `<div class="thumbnail-image" style="background-image: url(\'${thumbnail}\');"></div>`,
                             '</div>',
-                            `<div><strong>${name[lang]}</strong></div>`
+                            `<div><strong>${name[lang]}</strong></div>`,
+                            count !== '0' ? `<div>${count} ${dict['watching-now'][lang]}</div>` : ''
                         ].join(''))
                         .addTo(map);
                 });
