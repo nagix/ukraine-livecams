@@ -230,7 +230,7 @@
         }
 
         function addMarkers(map) {
-            for (const id of Object.keys(cameras)) {
+            for (const id of Object.keys(cameras).sort()) {
                 const {center, zoom, bearing, pitch, name, thumbnail, count} = cameras[id],
                     element = createElement('div', {className: 'livecam-marker'});
                     badgeElement = createElement('div', {className: 'badge'});
@@ -268,8 +268,10 @@
                             '<div class="ball-pulse"><div></div><div></div><div></div></div>',
                             `<div class="thumbnail-image" style="background-image: url(\'${thumbnail}\');"></div>`,
                             '</div>',
-                            `<div><strong>${name[lang]}</strong></div>`,
-                            count !== '0' ? `<div>${count} ${dict['watching-now'][lang]}</div>` : ''
+                            '<div>',
+                            `<strong>${name[lang]}</strong>`,
+                            count > 0 ? `<br>${count} ${dict['watching-now'][lang]}` : '',
+                            '</div>'
                         ].join(''))
                         .addTo(map);
                 });
