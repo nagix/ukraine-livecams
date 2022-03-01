@@ -230,7 +230,7 @@
         }
 
         function addMarkers(map) {
-            for (const id of Object.keys(cameras).sort()) {
+            for (const id of Object.keys(cameras).sort((a, b) => cameras[a].count - cameras[b].count)) {
                 const {center, zoom, bearing, pitch, name, thumbnail, count} = cameras[id],
                     element = createElement('div', {className: 'livecam-marker'});
                     badgeElement = createElement('div', {className: 'badge'});
