@@ -14,7 +14,7 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <meta property="og:title" content="Ukraine Live Cams" />
     <meta property="og:description" content="Ukraine live camera 3D map. This data visualization was produced by Akihiko Kusanagi." />
-    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:locale" content="en_US" />
     <link rel="canonical" href="https://nagix.github.io/ukraine-livecams" />
     <meta property="og:url" content="https://nagix.github.io/ukraine-livecams" />
     <meta property="og:site_name" content="Ukraine Live Cams" />
@@ -61,6 +61,7 @@
         const dict = {
             'watching-now': {
                 'en': 'watching now',
+                'uk': 'Зараз дивляться',
                 'ja': '人が視聴中'
             }
         };
@@ -309,14 +310,14 @@
         const matchLang = location.search.match(/lang=(.*?)(&|$)/);
         let lang = matchLang ? decodeURIComponent(matchLang[1]) : '';
 
-        if (!lang.match(/ja|en/)) {
+        if (!lang.match(/en|uk|ja/)) {
             lang = (window.navigator.languages && window.navigator.languages[0]) ||
                 window.navigator.language ||
                 window.navigator.userLanguage ||
                 window.navigator.browserLanguage || '';
         }
         lang = lang.substring(0, 2);
-        lang = lang.match(/ja|en/) ? lang : 'en';
+        lang = lang.match(/en|uk|ja/) ? lang : 'en';
 
         mapboxgl.accessToken = 'pk.eyJ1IjoibmFnaXgiLCJhIjoiY2wwMWY3MDhiMGx2bzNpbWUzb3ZtMzE3ciJ9.3mbkCXT-B-Cql9UPCTy9Qw';
         const map = new mapboxgl.Map({
