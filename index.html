@@ -237,8 +237,10 @@
                     badgeElement = createElement('div', {className: 'badge'});
                 let popup;
 
-                element.appendChild(badgeElement);
-                badgeElement.innerText = count;
+                if (count > 0) {
+                    element.appendChild(badgeElement);
+                    badgeElement.innerText = count;
+                }
                 markers[id] = new mapboxgl.Marker({element})
                     .setLngLat(center)
                     .addTo(map);
