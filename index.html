@@ -31,6 +31,11 @@
 <body>
     <div id="root">
         <div id="map"></div>
+            <div class="title">
+                <div id="title-menu" class="title-menu"></div>
+                <div class="title-text">Ukraine Live Cams</div>
+            </div>
+            <div id="camera-list" class="camera-list"></div>
             <div id="info-bg" class="bg">
                 <div class="info">
                     <div>About Ukraine Live Cams</div>
@@ -135,6 +140,7 @@
         }
 
         const isWindows = navigator.userAgent.indexOf('Windows') !== -1;
+        const touchSupport = window.ontouchstart !== undefined && navigator.maxTouchPoints > 0;
 
         class LivecamPanel {
 
@@ -233,24 +239,23 @@
         function addMarkers(map) {
             for (const id of Object.keys(cameras).sort((a, b) => cameras[a].count - cameras[b].count)) {
                 const {center, zoom, bearing, pitch, name, thumbnail, count} = cameras[id],
-                    element = createElement('div', {className: 'livecam-marker'});
-                    badgeElement = createElement('div', {className: 'badge'});
+                    markerElement = createElement('div', {className: 'livecam-marker'});
                 let popup;
 
                 if (count > 0) {
-                    element.appendChild(badgeElement);
-                    badgeElement.innerText = count;
+                    createElement('div', {className: 'badge', innerText: count}, markerElement);
                 }
-                markers[id] = new mapboxgl.Marker({element})
+                markers[id] = new mapboxgl.Marker({element: markerElement})
                     .setLngLat(center)
                     .addTo(map);
-                element.addEventListener('click', e => {
-                    element.classList.add('active');
+                markerElement.addEventListener('click', e => {
+                    cameraListElement.style.display = 'none';
+                    markerElement.classList.add('active');
                     selectMarker(map, id);
                     canvasElement.focus();
                     e.stopPropagation();
                 });
-                element.addEventListener('mouseenter', () => {
+                markerElement.addEventListener('mouseenter', () => {
                     popup = new AnimatedPopup({
                             className: 'popup-object',
                             closeButton: false,
@@ -271,18 +276,44 @@
                             '<div class="ball-pulse"><div></div><div></div><div></div></div>',
                             `<div class="thumbnail-image" style="background-image: url(\'${thumbnail}\');"></div>`,
                             '</div>',
-                            '<div>',
+                            '<div class="thumbnail-caption-bottom">',
                             `<strong>${name[lang]}</strong>`,
                             count > 0 ? `<br>${count} ${dict['watching-now'][lang]}` : '',
                             '</div>'
                         ].join(''))
                         .addTo(map);
                 });
-                element.addEventListener('mouseleave', () => {
+                markerElement.addEventListener('mouseleave', () => {
                     if (popup) {
                         popup.remove();
                         popup = undefined;
                     }
+                });
+
+                const cameraItemElement = createElement('div', {
+                    className: 'camera-item',
+                    innerHTML: [
+                        '<div class="thumbnail-image-container">',
+                        '<div class="ball-pulse"><div></div><div></div><div></div></div>',
+                        `<div class="thumbnail-image" style="background-image: url(\'${thumbnail}\');"></div>`,
+                        '</div>',
+                        '<div class="thumbnail-caption-right">',
+                        `<strong>${name[lang]}</strong>`,
+                        count > 0 ? `<br>${count} ${dict['watching-now'][lang]}` : '',
+                        '</div>'
+                    ].join('')
+                }, cameraListElement);
+                cameraItemElement.addEventListener('click', e => {
+                    cameraListElement.style.display = 'none';
+                    markerElement.classList.add('active');
+                    selectMarker(map, id);
+                    canvasElement.focus();
+                });
+                cameraItemElement.addEventListener('mouseenter', () => {
+                    markerElement.classList.add('active');
+                });
+                cameraItemElement.addEventListener('mouseleave', () => {
+                    markerElement.classList.remove('active');
                 });
             }
         }
@@ -292,6 +323,7 @@
                 markers[id].remove();
                 delete markers[id];
             }
+            cameraListElement.innerHTML = '';
         }
 
         function updateMarkers(map) {
@@ -335,6 +367,7 @@
             title: 'Fly to home position',
             eventHandler() {
                 deselectMarker();
+                cameraListElement.style.display = 'none';
                 map.flyTo({center: [31.685, 47.774], zoom: 5.5, bearing: 0, pitch: 45});
                 canvasElement.focus();
             }
@@ -342,12 +375,23 @@
             className: 'mapboxgl-ctrl-info',
             title: 'About Ukraine Live Cams',
             eventHandler() {
+                cameraListElement.style.display = 'none';
                 infoBGElement.style.display = 'block';
             }
         }]));
 
         const canvasElement = document.querySelector('#map .mapboxgl-canvas');
+        const titleMenuElement = document.getElementById('title-menu');
+        const cameraListElement = document.getElementById('camera-list');
         const infoBGElement = document.getElementById('info-bg');
+
+        titleMenuElement.addEventListener(touchSupport ? 'touchend' : 'click', () => {
+            if (cameraListElement.style.display === 'block') {
+                cameraListElement.style.display = 'none';
+            } else {
+                cameraListElement.style.display = 'block';
+            }
+        });
 
         infoBGElement.addEventListener('click', () => {
             infoBGElement.style.display = 'none';
@@ -360,6 +404,7 @@
             });
             map.on('click', () => {
                 deselectMarker();
+                cameraListElement.style.display = 'none';
             });
             setSunPosition(map);
             setInterval(() => {
