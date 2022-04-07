@@ -137,7 +137,8 @@
         },
         "russian-occupation": {
             "type": "geojson",
-            "data": "https://mini-tokyo.appspot.com/ukraine-area"
+            "data": "https://mini-tokyo.appspot.com/ukraine-area",
+            "attribution": "<a href=\"https://liveuamap.com\" target=\"_blank\">Liveuamap</a>"
         }
     },
     "sprite": "mapbox://sprites/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y/4snix0v8fnkivnb584t41dzcl",
