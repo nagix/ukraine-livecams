@@ -134,6 +134,10 @@
         "ukraine-border": {
             "type": "geojson",
             "data": "ukraine.geojson"
+        },
+        "russian-occupation": {
+            "type": "geojson",
+            "data": "https://mini-tokyo.appspot.com/ukraine-area"
         }
     },
     "sprite": "mapbox://sprites/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y/4snix0v8fnkivnb584t41dzcl",
@@ -9431,6 +9435,37 @@
                 "line-width": 10,
                 "line-color": "rgb(255, 0, 0)",
                 "line-opacity": 0.5
+            }
+        },
+        {
+            "id": "russian-occupation",
+            "type": "fill",
+            "source": "russian-occupation",
+            "paint": {
+                "fill-color": "rgb(255, 0, 0)",
+                "fill-outline-color": "rgb(255, 255, 255)",
+                "fill-opacity": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    10,
+                    [
+                        "match",
+                        [
+                            "get",
+                            "status"
+                        ],
+                        1,
+                        0.4,
+                        0.2
+                    ],
+                    15,
+                    0
+                ]
             }
         },
         {
