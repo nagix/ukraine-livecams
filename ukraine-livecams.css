@@ -269,7 +269,7 @@ html, body {
     height: calc(100% - 50px);
     margin-top: 10px;
     padding: 0 10px;
-    overflow: auto;
+    overflow: hidden;
     overscroll-behavior: contain;
     line-height: 130%;
 }

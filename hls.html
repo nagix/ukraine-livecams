@@ -1,0 +1,24 @@
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.1.5/dist/hls.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <video id="video" autoplay controls width="360" height="202"></video>
+    <script>
+        const video = document.getElementById('video');
+        const matchUrl = location.search.match(/url=(.*?)(&|$)/);
+        const videoSrc = matchUrl ? decodeURIComponent(matchUrl[1]) : '';
+
+        if (Hls.isSupported()) {
+            var hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+        }
+    </script>
+</body>
