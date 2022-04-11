@@ -34,6 +34,7 @@
             <div class="title">
                 <div id="title-menu" class="title-menu"></div>
                 <div class="title-text">Ukraine Live Cams</div>
+                <div id="last-updated-text" class="title-notes"></div>
             </div>
             <div id="camera-list" class="camera-list"></div>
             <div id="info-bg" class="bg">
@@ -64,6 +65,11 @@
         const LIVECAMS_URL = 'https://mini-tokyo.appspot.com/ukraine-livecams';
 
         const dict = {
+            'last-updated': {
+                'en': 'Last updated',
+                'uk': 'Останнє оновлення',
+                'ja': '最終更新'
+            },
             'watching-now': {
                 'en': 'watching now',
                 'uk': 'Зараз дивляться',
@@ -333,10 +339,13 @@
                     for (const id of Object.keys(cameras)) {
                         delete cameras[id];
                     }
-                    for (const item of data) {
+                    for (const item of data.cameras) {
                         cameras[item.id] = item;
                     }
                     addMarkers(map);
+
+                    const date = new Date(data.timestamp * 1000);
+                    lastUpdatedElement.innerHTML = `${dict['last-updated'][lang]}<br>${date.toLocaleDateString(lang)} ${date.toLocaleTimeString(lang)}`
                 }
             });
         }
@@ -383,6 +392,7 @@
         const canvasElement = document.querySelector('#map .mapboxgl-canvas');
         const titleMenuElement = document.getElementById('title-menu');
         const cameraListElement = document.getElementById('camera-list');
+        const lastUpdatedElement = document.getElementById('last-updated-text');
         const infoBGElement = document.getElementById('info-bg');
 
         titleMenuElement.addEventListener(touchSupport ? 'touchend' : 'click', () => {

@@ -61,9 +61,20 @@ html, body {
     vertical-align: middle;
 }
 .title-text {
-    padding-left: 10px;
     display: inline-block;
     vertical-align: top;
+}
+.title-notes {
+    padding-top: 8px;
+    padding-right: 12px;
+    display: inline-block;
+    vertical-align: top;
+    text-align: right;
+    float: right;
+    font-size: 12px;
+    line-height: 17px;
+    font-weight: normal;
+    color: #7f7f7f;
 }
 .bg {
     position: absolute;
