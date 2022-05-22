@@ -215,6 +215,22 @@
 
         }
 
+        function updateRtspMeThumbnails(cameras) {
+            const promises = cameras.map(item => item.source === 'rtspme' ?
+                fetch(`https://rtsp.me/embed/${item.camera}/`).then(response => response.text()) :
+                undefined
+            );
+
+            return Promise.all(promises).then(data => {
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i]) {
+                        const a = data[i].match(/poster="(.*?)"/);
+                        cameras[i].thumbnail = data[i].match(/poster="(.*?)"/)[1];
+                    }
+                }
+            });
+        }
+
         const cameras = {};
         const markers = {};
         let activeCamera;
@@ -334,19 +350,21 @@
 
         function updateMarkers(map) {
             fetch(LIVECAMS_URL).then(response => response.json()).then(data => {
-                if (!activeCamera) {
-                    removeMarkers();
-                    for (const id of Object.keys(cameras)) {
-                        delete cameras[id];
-                    }
-                    for (const item of data.cameras) {
-                        cameras[item.id] = item;
-                    }
-                    addMarkers(map);
+                updateRtspMeThumbnails(data.cameras).then(() => {
+                    if (!activeCamera) {
+                        removeMarkers();
+                        for (const id of Object.keys(cameras)) {
+                            delete cameras[id];
+                        }
+                        for (const item of data.cameras) {
+                            cameras[item.id] = item;
+                        }
+                        addMarkers(map);
 
-                    const date = new Date(data.timestamp * 1000);
-                    lastUpdatedElement.innerHTML = `${dict['last-updated'][lang]}<br>${date.toLocaleDateString(lang)} ${date.toLocaleTimeString(lang)}`
-                }
+                        const date = new Date(data.timestamp * 1000);
+                        lastUpdatedElement.innerHTML = `${dict['last-updated'][lang]}<br>${date.toLocaleDateString(lang)} ${date.toLocaleTimeString(lang)}`
+                    }
+                });
             });
         }
 
