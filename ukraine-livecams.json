@@ -139,6 +139,11 @@
             "type": "geojson",
             "data": "https://mini-tokyo.appspot.com/ukraine-area",
             "attribution": "<a href=\"https://liveuamap.com\" target=\"_blank\">Liveuamap</a>"
+        },
+        "fire": {
+            "type": "geojson",
+            "data": "https://mini-tokyo.appspot.com/ukraine-fire",
+            "attribution": "<a href=\"https://firms.modaps.eosdis.nasa.gov\" target=\"_blank\">NASA</a>"
         }
     },
     "sprite": "mapbox://sprites/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y/4snix0v8fnkivnb584t41dzcl",
@@ -9434,7 +9439,7 @@
             "source": "ukraine-border",
             "paint": {
                 "line-width": 10,
-                "line-color": "rgb(255, 0, 0)",
+                "line-color": "rgb(255, 153, 0)",
                 "line-opacity": 0.5
             }
         },
@@ -9466,6 +9471,41 @@
                     ],
                     15,
                     0
+                ]
+            }
+        },
+        {
+            "id": "fire",
+            "type": "circle",
+            "source": "fire",
+            "paint": {
+                "circle-color": "rgb(255, 0, 0)",
+                "circle-radius": [
+                    "interpolate",
+                    [
+                        "exponential",
+                        2
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    11,
+                    5,
+                    22,
+                    10240
+                ],
+                "circle-opacity": [
+                    "interpolate",
+                    [
+                        "linear"
+                    ],
+                    [
+                        "zoom"
+                    ],
+                    11,
+                    1,
+                    15,
+                    0.5
                 ]
             }
         },
